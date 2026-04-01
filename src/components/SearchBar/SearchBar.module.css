@@ -1,0 +1,87 @@
+.searchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  background: var(--glass-bg);
+  transition: all 0.3s ease;
+}
+
+.searchBox:focus-within {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.icon {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+}
+
+.input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.locateBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-left: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.locateBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.suggestionsList {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+  border-radius: 12px;
+  list-style: none;
+  padding: 0.5rem 0;
+  z-index: 50;
+  animation: fadeIn 0.2s ease;
+}
+
+.suggestionItem {
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+
+.suggestionIcon {
+  color: var(--text-secondary);
+  margin-right: 0.75rem;
+}
+
+.suggestionItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
