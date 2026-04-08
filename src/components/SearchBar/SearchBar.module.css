@@ -6,44 +6,56 @@
 .searchBox {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 30px;
-  background: var(--glass-bg);
-  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--glass-shadow);
 }
 
 .searchBox:focus-within {
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px var(--primary-glow);
 }
 
 .icon {
-  color: var(--text-secondary);
-  margin-right: 0.5rem;
+  color: var(--text-muted);
+  margin-right: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+.searchBox:focus-within .icon {
+  color: var(--primary);
 }
 
 .input {
   flex-grow: 1;
   background: transparent;
   border: none;
-  color: var(--text-primary);
+  color: var(--text-main);
   font-size: 1rem;
   font-family: inherit;
+  font-weight: 500;
   outline: none;
 }
 
 .input::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .locateBtn {
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   margin-left: 0.5rem;
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,8 +63,8 @@
 }
 
 .locateBtn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 .suggestionsList {
@@ -60,28 +72,38 @@
   top: calc(100% + 10px);
   left: 0;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 18px;
   list-style: none;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
   z-index: 50;
-  animation: fadeIn 0.2s ease;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .suggestionItem {
-  padding: 0.75rem 1.5rem;
+  padding: 0.8rem 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: var(--text-primary);
-  transition: background 0.2s;
+  color: var(--text-main);
+  border-radius: 12px;
+  transition: all 0.2s;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .suggestionIcon {
-  color: var(--text-secondary);
-  margin-right: 0.75rem;
+  color: var(--text-muted);
+  margin-right: 1rem;
 }
 
 .suggestionItem:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--primary);
+  color: white;
+}
+
+.suggestionItem:hover .suggestionIcon {
+  color: white;
 }

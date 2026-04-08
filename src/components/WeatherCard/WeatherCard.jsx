@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import styles from './WeatherCard.module.css';
 import { 
   CloudRain, 
@@ -12,88 +12,115 @@ import {
   Eye,
   Thermometer,
   Sunrise,
-  Sunset
+  Sunset,
+  Navigation
 } from 'lucide-react';
 import { formatTime } from '../../utils/api';
 
-const WeatherCard = ({ weather, className }) => {
-  const { main, weather: wt, wind, visibility, sys, timezone } = weather;
+const WeatherCard = ({ weather, unit, className }) => {
+  const { main, weather: wt, wind, visibility, sys, timezone, name } = weather;
   const condition = wt[0];
-  const isNight = Date.now() / 1000 > sys.sunset; 
+  const cardRef = useRef(null);
+  const [rotate, setRotate] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = (centerY - y) / 10;
+    const rotateY = (x - centerX) / 10;
+    setRotate({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+  };
 
   const icon = useMemo(() => {
     const id = condition.id;
-    if (id >= 200 && id < 300) return <CloudLightning size={80} />;
-    if (id >= 300 && id < 400) return <CloudDrizzle size={80} />;
-    if (id >= 500 && id < 600) return <CloudRain size={80} />;
-    if (id >= 600 && id < 700) return <CloudSnow size={80} />;
-    if (id === 800) return <Sun size={80} />;
-    return <Cloud size={80} />;
+    const props = { size: 100, strokeWidth: 1.5, className: styles.mainIcon };
+    if (id >= 200 && id < 300) return <CloudLightning {...props} />;
+    if (id >= 300 && id < 400) return <CloudDrizzle {...props} />;
+    if (id >= 500 && id < 600) return <CloudRain {...props} />;
+    if (id >= 600 && id < 700) return <CloudSnow {...props} />;
+    if (id === 800) return <Sun {...props} />;
+    return <Cloud {...props} />;
   }, [condition.id]);
 
+  const temp = unit === 'imperial' ? (main.temp * 9/5) + 32 : main.temp;
+  const feelsLike = unit === 'imperial' ? (main.feels_like * 9/5) + 32 : main.feels_like;
+  const unitSym = unit === 'imperial' ? '°F' : '°C';
+
   return (
-    <div className={`${styles.card} glass ${className}`}>
-      <div className={styles.topSection}>
-        <div className={styles.conditionBox}>
-          <div className={styles.iconContainer}>
-            {icon}
+    <div 
+      ref={cardRef}
+      className={`${styles.card} glass card-3d animate-entrance ${className}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: `rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`
+      }}
+    >
+      <div className={styles.header}>
+        <div className={styles.locationInfo}>
+          <h2>{name}</h2>
+          <p>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+        </div>
+        <div className={styles.badge}>{condition.main}</div>
+      </div>
+
+      <div className={styles.mainInfo}>
+        <div className={styles.iconContainer}>
+          {icon}
+        </div>
+        <div className={styles.tempContainer}>
+          <h1 className={styles.temp}>{Math.round(temp)}{unitSym}</h1>
+          <p className={styles.description}>{condition.description}</p>
+        </div>
+      </div>
+
+      <div className={styles.grid}>
+        <div className={styles.metric}>
+          <Thermometer className={styles.icon} />
+          <div className={styles.metricText}>
+            <span>Feels Like</span>
+            <p>{Math.round(feelsLike)}{unitSym}</p>
           </div>
-          <div>
-            <h2 className={styles.temp}>{Math.round(main.temp)}°C</h2>
-            <p className={styles.description}>{condition.description}</p>
+        </div>
+        <div className={styles.metric}>
+          <Droplets className={styles.icon} />
+          <div className={styles.metricText}>
+            <span>Humidity</span>
+            <p>{main.humidity}%</p>
+          </div>
+        </div>
+        <div className={styles.metric}>
+          <Wind className={styles.icon} />
+          <div className={styles.metricText}>
+            <span>Wind Speed</span>
+            <p>{wind.speed} {unit === 'imperial' ? 'mph' : 'm/s'}</p>
+          </div>
+        </div>
+        <div className={styles.metric}>
+          <Navigation className={styles.icon} style={{ transform: `rotate(${wind.deg}deg)` }} />
+          <div className={styles.metricText}>
+            <span>Direction</span>
+            <p>{wind.deg}°</p>
           </div>
         </div>
       </div>
-      
-      <div className={styles.divider}></div>
 
-      <div className={styles.metricsGrid}>
-        <div className={styles.metric}>
-          <Thermometer size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Feels like</span>
-            <p className={styles.value}>{Math.round(main.feels_like)}°C</p>
-          </div>
+      <div className={styles.footer}>
+        <div className={styles.sunTime}>
+          <Sunrise size={18} />
+          <span>{formatTime(sys.sunrise, timezone)}</span>
         </div>
-        
-        <div className={styles.metric}>
-          <Droplets size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Humidity</span>
-            <p className={styles.value}>{main.humidity}%</p>
-          </div>
-        </div>
-
-        <div className={styles.metric}>
-          <Wind size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Wind</span>
-            <p className={styles.value}>{wind.speed} m/s</p>
-          </div>
-        </div>
-
-        <div className={styles.metric}>
-          <Eye size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Visibility</span>
-            <p className={styles.value}>{(visibility / 1000).toFixed(1)} km</p>
-          </div>
-        </div>
-
-        <div className={styles.metric}>
-          <Sunrise size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Sunrise</span>
-            <p className={styles.value}>{formatTime(sys.sunrise, timezone)}</p>
-          </div>
-        </div>
-
-        <div className={styles.metric}>
-          <Sunset size={20} className={styles.metricIcon}/>
-          <div>
-            <span className={styles.label}>Sunset</span>
-            <p className={styles.value}>{formatTime(sys.sunset, timezone)}</p>
-          </div>
+        <div className={styles.sunTime}>
+          <Sunset size={18} />
+          <span>{formatTime(sys.sunset, timezone)}</span>
         </div>
       </div>
     </div>
