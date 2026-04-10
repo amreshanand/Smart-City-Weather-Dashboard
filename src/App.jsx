@@ -10,6 +10,7 @@ import Settings from './components/Settings/Settings';
 import Background from './components/Background';
 import Loader from './components/Loader/Loader';
 import { generateSuggestions } from './utils/suggestions';
+import { API_KEY } from './utils/api';
 import { AlertCircle, Key, Cloud } from 'lucide-react';
 
 function App() {
@@ -25,7 +26,15 @@ function App() {
     detectLocation,
   } = useWeather();
 
-  const apiKeyMissing = !import.meta.env.VITE_WEATHER_API_KEY;
+  const apiKeyMissing = !API_KEY || API_KEY === 'your_api_key_here';
+
+  // Dynamic weather theme attribute
+  useEffect(() => {
+    if (currentWeather) {
+      const condition = currentWeather.weather[0].main.toLowerCase();
+      document.documentElement.setAttribute('data-weather', condition);
+    }
+  }, [currentWeather]);
 
   if (apiKeyMissing) {
     return (
@@ -50,7 +59,7 @@ function App() {
       <header className={styles.header}>
         <div className={styles.logoContainer}>
           <div className={styles.logoIcon}>
-            <Cloud size={32} weight="fill" />
+            <Cloud size={32} />
           </div>
           <div className={styles.logoText}>
             <h1>SkyCast</h1>
