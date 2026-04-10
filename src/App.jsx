@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './App.module.css';
 import { useWeather } from './hooks/useWeather';
 import SearchBar from './components/SearchBar/SearchBar';
@@ -10,8 +10,8 @@ import Settings from './components/Settings/Settings';
 import Background from './components/Background';
 import Loader from './components/Loader/Loader';
 import { generateSuggestions } from './utils/suggestions';
-import { API_KEY } from './utils/api';
-import { AlertCircle, Key, Cloud } from 'lucide-react';
+import { getApiKey } from './utils/api';
+import { AlertCircle, Key, Cloud, Check } from 'lucide-react';
 
 function App() {
   const {
@@ -26,7 +26,17 @@ function App() {
     detectLocation,
   } = useWeather();
 
-  const apiKeyMissing = !API_KEY || API_KEY === 'your_api_key_here';
+  const [manualKey, setManualKey] = useState('');
+  const apiKey = getApiKey();
+  const apiKeyMissing = !apiKey || apiKey === 'your_api_key_here';
+
+  const handleSaveKey = (e) => {
+    e.preventDefault();
+    if (manualKey.trim().length > 20) {
+      localStorage.setItem('weather_api_key', manualKey.trim());
+      window.location.reload();
+    }
+  };
 
   // Dynamic weather theme attribute
   useEffect(() => {
@@ -40,11 +50,55 @@ function App() {
     return (
       <div className={styles.appContainer}>
         <Background />
-        <div className={`${styles.error} glass animate-entrance`} style={{ marginTop: '20vh', flexDirection: 'column', padding: '3rem', textAlign: 'center' }}>
-          <Key size={48} color="var(--primary)" />
-          <h2 style={{ fontSize: '2rem', margin: '1rem 0' }}>API Key Missing</h2>
-          <p>Please add your OpenWeatherMap API key to the <code>.env</code> file:</p>
-          <pre style={{ background: 'rgba(0,0,0,0.5)', padding: '1rem', borderRadius: '8px', marginTop: '1rem' }}>VITE_WEATHER_API_KEY="your_api_key_here"</pre>
+        <div className={`${styles.error} glass animate-entrance`} style={{ marginTop: '15vh', flexDirection: 'column', padding: '3rem', textAlign: 'center', gap: '1rem' }}>
+          <div className={styles.logoIcon} style={{ margin: '0 auto', width: '80px', height: '80px' }}>
+            <Key size={40} color="white" />
+          </div>
+          <h2 style={{ fontSize: '2rem', margin: '0.5rem 0' }}>API Key Required</h2>
+          <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto' }}> To display live weather data, please provide your OpenWeatherMap API key.</p>
+          
+          <form onSubmit={handleSaveKey} style={{ width: '100%', marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <input 
+              type="text" 
+              placeholder="Paste your API key here..." 
+              value={manualKey}
+              onChange={(e) => setManualKey(e.target.value)}
+              style={{
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px solid var(--glass-border)',
+                padding: '1rem',
+                borderRadius: '12px',
+                color: 'white',
+                textAlign: 'center',
+                fontSize: '1rem'
+              }}
+            />
+            <button 
+              type="submit" 
+              disabled={manualKey.length < 20}
+              style={{
+                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                color: 'white',
+                border: 'none',
+                padding: '1rem',
+                borderRadius: '12px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                opacity: manualKey.length < 20 ? 0.5 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <Check size={20} />
+              Save & Refresh
+            </button>
+          </form>
+          
+          <p style={{ fontSize: '0.8rem', marginTop: '2rem', color: 'var(--text-dim)' }}>
+            Your key is saved locally in your browser. For a permanent fix, set <code>VITE_WEATHER_API_KEY</code> in your environment variables.
+          </p>
         </div>
       </div>
     );

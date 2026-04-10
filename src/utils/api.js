@@ -1,11 +1,11 @@
-export const API_KEY = import.meta.env.VITE_WEATHER_API_KEY || ''; // Needs to be added in .env
+export const getApiKey = () => import.meta.env.VITE_WEATHER_API_KEY || localStorage.getItem('weather_api_key') || '';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 /**
  * Fetch current weather by city name 
  */
 export const fetchCurrentWeather = async (city) => {
-  const res = await fetch(`${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric`);
+  const res = await fetch(`${BASE_URL}/weather?q=${city}&appid=${getApiKey()}&units=metric`);
   if (res.status === 401) throw new Error('Invalid or unauthorized API Key. Please check your .env file.');
   if (!res.ok) throw new Error('City not found');
   return res.json();
@@ -15,7 +15,7 @@ export const fetchCurrentWeather = async (city) => {
  * Fetch current weather by coordinates
  */
 export const fetchCurrentWeatherByCoords = async (lat, lon) => {
-  const res = await fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+  const res = await fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${getApiKey()}&units=metric`);
   if (res.status === 401) throw new Error('Invalid or unauthorized API Key. Please check your .env file.');
   if (!res.ok) throw new Error('Location not found');
   return res.json();
@@ -43,7 +43,7 @@ export const fetch7DayForecast = async (lat, lon) => {
  * Fetch 5-day forecast by city (Keeping for compatibility or fallback)
  */
 export const fetchForecast = async (city) => {
-  const res = await fetch(`${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`);
+  const res = await fetch(`${BASE_URL}/forecast?q=${city}&appid=${getApiKey()}&units=metric`);
   if (res.status === 401) throw new Error('Invalid or unauthorized API Key. Please check your .env file.');
   if (!res.ok) throw new Error('Forecast not found');
   return res.json();
